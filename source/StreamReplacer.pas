@@ -6,8 +6,9 @@ uses
   Types,
   SysUtils,
   Classes,
-
-  JclLinkedLists;
+  
+  LinkedList,
+  Int64LinkedList;
 
 type
   TStreamReplacer = class
@@ -15,13 +16,13 @@ type
     var
       FSought: TStringDynArray;
       FTables: array of TIntegerDynArray;
-      FFound: array of TJclInt64LinkedList;
+      FFound: array of PInt64LinkedList;
       FInput: TStream;
     type
       TReplacer = procedure(const aIndex: Integer; const aOutput: TStream) of object;
     procedure WriteI(const aOutput: TStream; const aReplacer: TReplacer);
     procedure BuildTables;
-    function SearchThis(const aIndex: Integer): TList;
+    function SearchThis(const aIndex: Integer): PInt64LinkedList;
     procedure SearchSought;
     function NextFound(const aCurrent: Int64; out aSoughtIndex: Integer): Int64;
     procedure ReleaseDynamicStructures;
@@ -154,23 +155,24 @@ begin
     FTables[i] := CreateKMPTable(FSought[i]);
 end;
 
-function TStreamReplacer.SearchThis(const aIndex: Integer): TJclInt64LinkedList;
+function TStreamReplacer.SearchThis(const aIndex: Integer): PInt64LinkedList;
 var
   index: Int64;
   currentSought: string;
+  tail: PInt64LinkedList;
 begin
-  result := TJclInt64LinkedList.Create(nil);
+  tail := nil;
   index := 0;
   currentSought := FSought[aIndex];
   WriteLn('Now searching: ', currentSought);
   repeat
     index := KMPSearchStream(index, currentSought, FInput, FTables[aIndex]);
     if
-      index = -1
+      -1 = index
     then
       break;
     WriteLn('Found: ', index);
-    result.Add(index);
+    Append(result, tail, index);
     Inc(index);
   until False;
 end;
@@ -186,14 +188,18 @@ end;
 
 function TStreamReplacer.NextFound(const aCurrent: Int64; out aSoughtIndex: Integer): Int64;
 var
-  i, j: Integer;
+  i: Integer;
   x: Int64;
+  tail: PInt64LinkedList;
 begin
   result := -1;
   for i := 0 to Length(FFound) - 1 do
-    for j := 0 to FFound[i].Size - 1 do
+  begin
+    tail := FFound[i];
+    while 
+      Next(tail, x) 
+    do
     begin
-      x := FFound[i].GetValue(j);
       if
         aCurrent < x
       then
@@ -207,6 +213,7 @@ begin
           aSoughtIndex := i;
         end;
     end;
+  end;
 end;
 
 procedure TStreamReplacer.ReleaseDynamicStructures;
@@ -218,7 +225,7 @@ begin
     SetLength(FTables[i], 0);
   SetLength(FTables, 0);
   for i := 0 to Length(FFound) - 1 do
-    FFound[i].Free;
+    DisposeList(FFound[i]);
   SetLength(FFound, 0);
 end;
 
