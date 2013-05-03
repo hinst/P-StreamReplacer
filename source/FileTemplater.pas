@@ -40,8 +40,10 @@ type
     FReplacer: TStreamReplacer;
     FFileName: TStringDynArray; // 0 is input, 1 is output
 	public
+    property FileName: TStringDynArray read FFileName;
 		constructor Create(aOwner: TComponent); override;
 		procedure AddReplacer(const aReplacer: TTemplateReplacement);
+    procedure Run;
     destructor Destroy; override;
 	end;
 
@@ -84,6 +86,14 @@ end;
 procedure TFileTemplater.AddReplacer(const aReplacer: TTemplateReplacement);
 begin
 	FReplacers.Add(aReplacer);
+end;
+
+procedure TFileTemplater.Run;
+var
+  inputStream: TFileStream;
+begin
+  inputStream := TFileStream.Create(FileName[0]);
+  FReplacer := TStreamReplacer.Create(inputStream, );
 end;
 
 destructor TFileTemplater.Destroy;
