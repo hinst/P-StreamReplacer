@@ -4,87 +4,84 @@ interface
 
 uses
   Types,
-	Classes,
-	
-	StringRoutines,
-	StreamReplacer;
+  Classes,
+  StringRoutines,
+  StreamReplacer;
 
 type
-	TTemplateReplacement = class(TComponent)
-	public
-		What: String;
-		function Write(const aOutput: TStream): Boolean; virtual;
-	end;
-	
+  TTemplateReplacement = class(TComponent)
+  public
+    What: string;
+    function Write(const aOutput: TStream): boolean; virtual;
+  end;
+
 type
-	TTemplateStringReplacement = class(TTemplateReplacement)
-	public
-		Text: String;
-		function Write(const aOutput: TStream): Boolean; override;
-	end;
-	
+  TTemplateStringReplacement = class(TTemplateReplacement)
+  public
+    Text: string;
+    function Write(const aOutput: TStream): boolean; override;
+  end;
+
 type
-	TTemplateFileReplacement = class(TTemplateReplacement)
-	public
-		FileName: String;
-		function Write(const aOutput: TStream): Boolean; override;
-	end;
+  TTemplateFileReplacement = class(TTemplateReplacement)
+  public
+    FileName: string;
+    function Write(const aOutput: TStream): boolean; override;
+  end;
 
 type
 
-{ TFileTemplater }
+  { TFileTemplater }
 
- TFileTemplater = class(TComponent)
-	protected
-		FReplacers: TList;
+  TFileTemplater = class(TComponent)
+  protected
+    FReplacers: TList;
     FReplacer: TStreamReplacer;
     FFileName: TStringDynArray; // 0 is input, 1 is output
     function CreateReplacersStringDynArray: TStringDynArray;
-    procedure ReplacerMethod(const aIndex: Integer; const aOutput: TStream);
-	public
+    procedure ReplacerMethod(const aIndex: integer; const aOutput: TStream);
+  public
     property FileName: TStringDynArray read FFileName;
-		constructor Create(aOwner: TComponent); override;
-		procedure AddReplacer(const aReplacer: TTemplateReplacement);
-    procedure AddStringReplacer(const aWhat, aWith: String);
-    procedure AddFileReplacer(const aWhat, aFileName: String);
+    constructor Create(aOwner: TComponent); override;
+    procedure AddReplacer(const aReplacer: TTemplateReplacement);
+    procedure AddStringReplacer(const aWhat, aWith: string);
+    procedure AddFileReplacer(const aWhat, aFileName: string);
     procedure Run;
     destructor Destroy; override;
-	end;
+  end;
 
 implementation
 
-function TTemplateReplacement.Write(const aOutput: TStream): Boolean;
+function TTemplateReplacement.Write(const aOutput: TStream): boolean;
 var
-  n, r: Integer;
+  n, r: integer;
 begin
   n := GetByteLength(What);
   r := aOutput.Write(PChar(What)^, n);
-  result := n = r;
+  Result := n = r;
 end;
 
-function TTemplateStringReplacement.Write(const aOutput: TStream): Boolean;
+function TTemplateStringReplacement.Write(const aOutput: TStream): boolean;
 var
-  n, r: Integer;
+  n, r: integer;
 begin
   n := GetByteLength(Text);
-	r := aOutput.Write(PChar(Text)^, n);
-  result := n = r;
+  r := aOutput.Write(PChar(Text)^, n);
+  Result := n = r;
 end;
 
-function TTemplateFileReplacement.Write(const aOutput: TStream): Boolean;
+function TTemplateFileReplacement.Write(const aOutput: TStream): boolean;
 var
   stream: TFileStream;
-  n, r: Int64;
+  n, r: int64;
 begin
-  result := FileName <> '';
-  if
-    result
-  then
+  Result := FileName <> '';
+  if Result then
   begin
     stream := TFileStream.Create(FileName, fmOpenRead);
     n := stream.Size;
     r := aOutput.CopyFrom(stream, n);
-    result := n = r;
+    Result := n = r;
     stream.Free;
   end;
 end;
@@ -93,42 +90,40 @@ end;
 
 function TFileTemplater.CreateReplacersStringDynArray: TStringDynArray;
 var
-  i: Integer;
+  i: integer;
 begin
-  if
-    FReplacers <> nil
-  then
+  if FReplacers <> nil then
   begin
-    SetLength(result, FReplacers.Count);
-    for i := 0 to Length(result) - 1 do
-      result[i] := FReplacers[i];
+    SetLength(Result, FReplacers.Count);
+    for i := 0 to Length(Result) - 1 do
+      Result[i] := FReplacers[i];
   end
   else
-    result := nil;
+    Result := nil;
 end;
 
-procedure TFileTemplater.ReplacerMethod(const aIndex: Integer; const aOutput: TStream);
+procedure TFileTemplater.ReplacerMethod(const aIndex: integer; const aOutput: TStream);
 var
   replacer: TTemplateReplacement;
-  result: Boolean;
+  Result: boolean;
 begin
   replacer := TTemplateReplacement(FReplacers[aIndex]);
-  result := replacer.Write(aOutput);
+  Result := replacer.Write(aOutput);
 end;
 
 constructor TFileTemplater.Create(aOwner: TComponent);
 begin
-	inherited Create(aOwner);
-	FReplacers := TList.Create;
+  inherited Create(aOwner);
+  FReplacers := TList.Create;
   SetLength(FFileName, 2);
 end;
 
 procedure TFileTemplater.AddReplacer(const aReplacer: TTemplateReplacement);
 begin
-	FReplacers.Add(aReplacer);
+  FReplacers.Add(aReplacer);
 end;
 
-procedure TFileTemplater.AddStringReplacer(const aWhat, aWith: String);
+procedure TFileTemplater.AddStringReplacer(const aWhat, aWith: string);
 var
   replacer: TTemplateStringReplacement;
 begin
@@ -138,7 +133,7 @@ begin
   AddReplacer(replacer);
 end;
 
-procedure TFileTemplater.AddFileReplacer(const aWhat, aFileName: String);
+procedure TFileTemplater.AddFileReplacer(const aWhat, aFileName: string);
 var
   replacer: TTemplateFileReplacement;
 begin
@@ -170,6 +165,11 @@ begin
 end;
 
 end.
+
+
+
+
+
 
 
 
