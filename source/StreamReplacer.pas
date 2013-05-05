@@ -11,6 +11,9 @@ uses
   Int64LinkedList;
 
 type
+
+  { TStreamReplacer }
+
   TStreamReplacer = class
   protected
     var
@@ -26,6 +29,7 @@ type
     procedure SearchSought;
     function NextFound(const aCurrent: Int64; out aSoughtIndex: Integer): Int64;
     procedure ReleaseDynamicStructures;
+    procedure WriteDebugLine(const aString: string);
   public
     constructor Create(const aInput: TStream; const aSearch: TStringDynArray);
     procedure Search;
@@ -79,7 +83,6 @@ function KMPSearchStream(
   
   function getSymbol(const aIndex: Int64): Char;
   begin
-    //Write(aIndex, ' ');
     s.Seek(aIndex, soFromBeginning);
     s.ReadBuffer(result, 1);
   end;
@@ -131,13 +134,13 @@ begin
   position := NextFound(position, index);
   while position <> -1 do
   begin
-    WriteLn('Position: ', position, '; index: ', index,
-      '; FInput position: ', FInput.Position);
+    WriteDebugLine('Position: ' + IntToStr(position) + '; index: ' + IntToStr(index)
+      + '; FInput position: ' + IntToStr(FInput.Position));
     if
       position <> 0
     then
       aOutput.CopyFrom(FInput, position - FInput.Position);
-    WriteLn('FInput position: ', FInput.Position);
+    WriteDebugLine('FInput position: ' + IntToStr(FInput.Position));
     aReplacer(index, aOutput);
     FInput.Seek(Length(FSought[index]), soFromCurrent);
     position := NextFound(position, index);
@@ -161,17 +164,18 @@ var
   currentSought: string;
   tail: PInt64LinkedList;
 begin
+  result := nil;
   tail := nil;
   index := 0;
   currentSought := FSought[aIndex];
-  WriteLn('Now searching: ', currentSought);
+  WriteDebugLine('Now searching: ' + currentSought);
   repeat
     index := KMPSearchStream(index, currentSought, FInput, FTables[aIndex]);
     if
       -1 = index
     then
       break;
-    WriteLn('Found: ', index);
+    WriteDebugLine('Found: ' + IntToStr(index));
     Append(result, tail, index);
     Inc(index);
   until False;
@@ -220,13 +224,24 @@ procedure TStreamReplacer.ReleaseDynamicStructures;
 var
   i: Integer;
 begin
+  WriteDebugLine('Now releasing dynamic structures...');
   SetLength(FSought, 0);
   for i := 0 to Length(FTables) - 1 do
     SetLength(FTables[i], 0);
   SetLength(FTables, 0);
+  WriteDebugLine('Now disposing lists...');
   for i := 0 to Length(FFound) - 1 do
+  begin
+    WriteDebugLine('Now disposing list #' + IntToStr(i));
     DisposeList(FFound[i]);
+  end;
+  WriteDebugLine('Lists disposed...');
   SetLength(FFound, 0);
+end;
+
+procedure TStreamReplacer.WriteDebugLine(const aString: string);
+begin
+  //WriteLn(aString);
 end;
 
 // TStreamReplacer public methods 

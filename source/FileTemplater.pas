@@ -56,7 +56,7 @@ function TTemplateReplacement.Write(const aOutput: TStream): boolean;
 var
   n, r: integer;
 begin
-  n := GetByteLength(What);
+  n := GetByteLength(What) - 1;
   r := aOutput.Write(PChar(What)^, n);
   Result := n = r;
 end;
@@ -65,7 +65,7 @@ function TTemplateStringReplacement.Write(const aOutput: TStream): boolean;
 var
   n, r: integer;
 begin
-  n := GetByteLength(Text);
+  n := GetByteLength(Text) - 1;
   r := aOutput.Write(PChar(Text)^, n);
   Result := n = r;
 end;
@@ -96,10 +96,12 @@ begin
   begin
     SetLength(Result, FReplacers.Count);
     for i := 0 to Length(Result) - 1 do
-      Result[i] := FReplacers[i];
+      Result[i] := TTemplateReplacement(FReplacers[i]).What;
   end
   else
     Result := nil;
+  AddFileReplacer();
+  Create();
 end;
 
 procedure TFileTemplater.ReplacerMethod(const aIndex: integer; const aOutput: TStream);
@@ -147,8 +149,8 @@ procedure TFileTemplater.Run;
 var
   inputStream, outputStream: TFileStream;
 begin
-  inputStream := TFileStream.Create(FileName[0]);
-  outputStream := TFileStream.Create(FileName[1]);
+  inputStream := TFileStream.Create(FileName[0], fmOpenRead);
+  outputStream := TFileStream.Create(FileName[1], fmCreate or fmOpenWrite);
   FReplacer := TStreamReplacer.Create(inputStream, CreateReplacersStringDynArray);
   FReplacer.Search;
   FReplacer.Write(outputStream, ReplacerMethod);
