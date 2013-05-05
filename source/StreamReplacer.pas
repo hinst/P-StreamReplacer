@@ -7,13 +7,15 @@ uses
   SysUtils,
   Classes,
   
-  LinkedList,
   Int64LinkedList;
 
 type
 
-  { TStreamReplacer }
+  TStreamReplacerSearchResult = record
+    SoughtIndex, StreamPosition: Integer;
+  end;
 
+  { TStreamReplacer }
   TStreamReplacer = class
   protected
     var
@@ -80,13 +82,11 @@ function KMPSearchStream(
   const t: TIntegerDynArray
 )
   : Int64;
-  
   function getSymbol(const aIndex: Int64): Char;
   begin
     s.Seek(aIndex, soFromBeginning);
     s.ReadBuffer(result, 1);
   end;
-
 var
   i: Integer;
   m: Int64;

@@ -5,6 +5,7 @@ interface
 uses
   Types,
   Classes,
+
   StringRoutines,
   StreamReplacer;
 
@@ -100,8 +101,6 @@ begin
   end
   else
     Result := nil;
-  AddFileReplacer();
-  Create();
 end;
 
 procedure TFileTemplater.ReplacerMethod(const aIndex: integer; const aOutput: TStream);
