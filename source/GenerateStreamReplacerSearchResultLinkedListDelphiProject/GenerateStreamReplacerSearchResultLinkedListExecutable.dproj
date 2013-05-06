@@ -17,10 +17,10 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Version>7.0</Version>
     <DCC_Define>DEBUG</DCC_Define>
-    <DCC_UnitSearchPath>..;..\..\..\P-Strings\source;..\..\..\P-Containers\Source</DCC_UnitSearchPath>
-    <DCC_ResourcePath>..;..\..\..\P-Strings\source;..\..\..\P-Containers\Source</DCC_ResourcePath>
-    <DCC_ObjPath>..;..\..\..\P-Strings\source;..\..\..\P-Containers\Source</DCC_ObjPath>
-    <DCC_IncludePath>..;..\..\..\P-Strings\source;..\..\..\P-Containers\Source</DCC_IncludePath>
+    <DCC_UnitSearchPath>..;..\..\..\P-Strings\source;..\..\..\P-Containers\Source;..\..\..\P-Files\Source</DCC_UnitSearchPath>
+    <DCC_ResourcePath>..;..\..\..\P-Strings\source;..\..\..\P-Containers\Source;..\..\..\P-Files\Source</DCC_ResourcePath>
+    <DCC_ObjPath>..;..\..\..\P-Strings\source;..\..\..\P-Containers\Source;..\..\..\P-Files\Source</DCC_ObjPath>
+    <DCC_IncludePath>..;..\..\..\P-Strings\source;..\..\..\P-Containers\Source;..\..\..\P-Files\Source</DCC_IncludePath>
     <DCC_ExeOutput>..\..\compiled</DCC_ExeOutput>
     <DCC_DcuOutput>..\..\compiled</DCC_DcuOutput>
     <DCC_ObjOutput>..\..\compiled</DCC_ObjOutput>

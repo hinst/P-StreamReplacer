@@ -6,11 +6,11 @@ program GenerateStreamReplacerSearchResultLinkedListExecutable;
 
 uses
   SysUtils,
-  FileUtil,
+  FileRoutines,
   FileTemplater;
 
 {$Include ..\GenerateStreamReplacerSearchResultLinkedList.inc}
 
 begin
-  WriteLn('FFFUUU');
+  GenerateStreamReplacerSearchResultLinkedList;
 end.
