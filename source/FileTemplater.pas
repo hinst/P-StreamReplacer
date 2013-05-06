@@ -4,6 +4,7 @@ interface
 
 uses
   Types,
+  SysUtils,
   Classes,
 
   StringRoutines,
