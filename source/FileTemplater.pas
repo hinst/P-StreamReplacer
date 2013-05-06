@@ -107,10 +107,10 @@ end;
 procedure TFileTemplater.ReplacerMethod(const aIndex: integer; const aOutput: TStream);
 var
   replacer: TTemplateReplacement;
-  Result: boolean;
+  result: boolean;
 begin
   replacer := TTemplateReplacement(FReplacers[aIndex]);
-  Result := replacer.Write(aOutput);
+  result := replacer.Write(aOutput);
 end;
 
 constructor TFileTemplater.Create(aOwner: TComponent);

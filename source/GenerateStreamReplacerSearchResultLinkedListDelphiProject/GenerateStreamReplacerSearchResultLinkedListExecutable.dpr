@@ -2,10 +2,15 @@
 // JCL_DEBUG_EXPERT_INSERTJDBG OFF
 program GenerateStreamReplacerSearchResultLinkedListExecutable;
 
-{$APPTYPE CONSOLE}
+{$AppType Console}
 
 uses
+  SysUtils,
+  FileUtil,
   FileTemplater;
 
+{$Include ..\GenerateStreamReplacerSearchResultLinkedList.inc}
+
 begin
+  WriteLn('FFFUUU');
 end.
