@@ -10,11 +10,13 @@ uses
   Int64LinkedList;
 
 type
-
   TStreamReplacerSearchResult = record
     SoughtIndex, StreamPosition: Integer;
   end;
 
+{$Include g\StreamReplacerSearchResultLinkedListFace.inc}
+
+type
   { TStreamReplacer }
   TStreamReplacer = class
   protected
@@ -40,6 +42,8 @@ type
   end;
 
 implementation
+
+{$Include g\StreamReplacerSearchResultLinkedListImpl.inc}
 
 function CreateKMPTable(w: string): TIntegerDynArray;
 var

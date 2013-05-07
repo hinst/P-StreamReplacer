@@ -10,25 +10,25 @@ var
   item: PStreamReplacerSearchResultLinkedList;
 begin
   item := Create(aValue);
-  if
-    aTail <> nil
-  then
-    aTail.Next := item
-  else
-    aList := item;
-  aTail := item;
+	if
+		aTail <> nil
+	then
+		aTail.Next := item
+	else
+		aList := item;
+	aTail := item;
 end;
 
 function Next(var aCurrent: PStreamReplacerSearchResultLinkedList; out aValue: TStreamReplacerSearchResult): boolean;
 begin
-  result := aCurrent <> nil;
-  if
-    result
-  then
-  begin
-    aValue := aCurrent.Value;
-    aCurrent := aCurrent.Next;
-  end;
+	result := aCurrent <> nil;
+	if
+		result
+	then
+	begin
+		aValue := aCurrent.Value;
+		aCurrent := aCurrent.Next;
+	end;
 end;
 
 function DisposeList(const aList: PStreamReplacerSearchResultLinkedList): PStreamReplacerSearchResultLinkedList;

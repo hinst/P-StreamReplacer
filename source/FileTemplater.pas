@@ -14,21 +14,21 @@ type
   TTemplateReplacement = class(TComponent)
   public
     What: string;
-    function Write(const aOutput: TStream): boolean; virtual;
+    function Write(const aOutput: TStream): Boolean; virtual;
   end;
 
 type
   TTemplateStringReplacement = class(TTemplateReplacement)
   public
     Text: string;
-    function Write(const aOutput: TStream): boolean; override;
+    function Write(const aOutput: TStream): Boolean; override;
   end;
 
 type
   TTemplateFileReplacement = class(TTemplateReplacement)
   public
     FileName: string;
-    function Write(const aOutput: TStream): boolean; override;
+    function Write(const aOutput: TStream): Boolean; override;
   end;
 
 type
@@ -40,10 +40,14 @@ type
     FReplacers: TList;
     FReplacer: TStreamReplacer;
     FFileName: TStringDynArray; // 0 is input, 1 is output
+    FLatestResult: Boolean;
+    function GetLatestResultAsDebugText: string;
     function CreateReplacersStringDynArray: TStringDynArray;
     procedure ReplacerMethod(const aIndex: integer; const aOutput: TStream);
   public
     property FileName: TStringDynArray read FFileName;
+    property LatestResult: Boolean read FLatestResult;
+    property LatestResultAsDebugText: string read GetLatestResultAsDebugText;
     constructor Create(aOwner: TComponent); override;
     procedure AddReplacer(const aReplacer: TTemplateReplacement);
     procedure AddStringReplacer(const aWhat, aWith: string);
@@ -90,6 +94,13 @@ end;
 
 { TFileTemplater }
 
+function TFileTemplater.GetLatestResultAsDebugText: string;
+begin
+  result :=
+    'F "' + FileName[0] + '" t.ed: "' + FileName[1] + '"'
+     + '; rslt: ' + BoolToStr(LatestResult, True);
+end;
+
 function TFileTemplater.CreateReplacersStringDynArray: TStringDynArray;
 var
   i: integer;
@@ -111,6 +122,7 @@ var
 begin
   replacer := TTemplateReplacement(FReplacers[aIndex]);
   result := replacer.Write(aOutput);
+  FLatestResult := FLatestResult and result;
 end;
 
 constructor TFileTemplater.Create(aOwner: TComponent);
@@ -118,6 +130,8 @@ begin
   inherited Create(aOwner);
   FReplacers := TList.Create;
   SetLength(FFileName, 2);
+  FFileName[0] := '';
+  FFileName[1] := '';
 end;
 
 procedure TFileTemplater.AddReplacer(const aReplacer: TTemplateReplacement);
@@ -153,6 +167,7 @@ begin
   outputStream := TFileStream.Create(FileName[1], fmCreate or fmOpenWrite);
   FReplacer := TStreamReplacer.Create(inputStream, CreateReplacersStringDynArray);
   FReplacer.Search;
+  FLatestResult := true;
   FReplacer.Write(outputStream, ReplacerMethod);
   FReplacer.Free;
   outputStream.Free;
