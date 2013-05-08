@@ -23,15 +23,21 @@ type
     var
       FSought: TStringDynArray;
       FTables: array of TIntegerDynArray;
-      FFound: array of PInt64LinkedList;
+      FFound: PStreamReplacerSearchResultLinkedList;
       FInput: TStream;
     type
       TReplacer = procedure(const aIndex: Integer; const aOutput: TStream) of object;
     procedure WriteI(const aOutput: TStream; const aReplacer: TReplacer);
     procedure BuildTables;
-    function SearchThis(const aIndex: Integer): PInt64LinkedList;
+    procedure SearchThis(
+      var aTail: PStreamReplacerSearchResultLinkedList;
+      const aIndex: Integer
+    );
+    procedure AppendSearchResult(
+      var aTail: PStreamReplacerSearchResultLinkedList;
+      const aSoughtIndex: Integer;
+      const aStreamPosition: Int64); inline;
     procedure SearchSought;
-    function NextFound(const aCurrent: Int64; out aSoughtIndex: Integer): Int64;
     procedure ReleaseDynamicStructures;
     procedure WriteDebugLine(const aString: string);
   public
@@ -131,24 +137,24 @@ end;
 
 procedure TStreamReplacer.WriteI(const aOutput: TStream; const aReplacer: TReplacer);
 var
-  position: Int64;
-  index: Integer;
+  item: TStreamReplacerSearchResult;
+  tail: PStreamReplacerSearchResultLinkedList;
 begin
   FInput.Seek(0, soFromBeginning);
-  position := -1;
-  position := NextFound(position, index);
-  while position <> -1 do
+  tail := FFound;
+  while
+    Next(tail, item)
+  do
   begin
-    WriteDebugLine('Position: ' + IntToStr(position) + '; index: ' + IntToStr(index)
+    WriteDebugLine('Position: ' + IntToStr(item.StreamPosition) + '; index: ' + IntToStr(item.SoughtIndex)
       + '; FInput position: ' + IntToStr(FInput.Position));
     if
-      position <> 0
+      item.StreamPosition <> 0
     then
-      aOutput.CopyFrom(FInput, position - FInput.Position);
+      aOutput.CopyFrom(FInput, item.StreamPosition - FInput.Position);
     WriteDebugLine('FInput position: ' + IntToStr(FInput.Position));
-    aReplacer(index, aOutput);
-    FInput.Seek(Length(FSought[index]), soFromCurrent);
-    position := NextFound(position, index);
+    aReplacer(item.SoughtIndex, aOutput);
+    FInput.Seek(Length(FSought[item.SoughtIndex]), soFromCurrent);
   end;
   if FInput.Size <> FInput.Position then
     aOutput.CopyFrom(FInput, FInput.Size - FInput.Position);
@@ -163,66 +169,49 @@ begin
     FTables[i] := CreateKMPTable(FSought[i]);
 end;
 
-function TStreamReplacer.SearchThis(const aIndex: Integer): PInt64LinkedList;
+procedure TStreamReplacer.SearchThis(
+  var aTail: PStreamReplacerSearchResultLinkedList;
+  const aIndex: Integer);
 var
-  index: Int64;
+  position: Int64;
   currentSought: string;
   tail: PInt64LinkedList;
 begin
-  result := nil;
-  tail := nil;
-  index := 0;
+  position := 0;
   currentSought := FSought[aIndex];
   WriteDebugLine('Now searching: ' + currentSought);
   repeat
-    index := KMPSearchStream(index, currentSought, FInput, FTables[aIndex]);
+    position := KMPSearchStream(position, currentSought, FInput, FTables[aIndex]);
     if
-      -1 = index
+      -1 = position
     then
       break;
-    WriteDebugLine('Found: ' + IntToStr(index));
-    Append(result, tail, index);
-    Inc(index);
+    WriteDebugLine('Found: ' + IntToStr(position));
+    AppendSearchResult(aTail, aIndex, position);
+    Inc(position);
   until False;
+end;
+
+procedure TStreamReplacer.AppendSearchResult(
+  var aTail: PStreamReplacerSearchResultLinkedList;
+  const aSoughtIndex: Integer; const aStreamPosition: Int64);
+var
+  item: TStreamReplacerSearchResult;
+begin
+  item.SoughtIndex := aSoughtIndex;
+  item.StreamPosition := aStreamPosition;
+  Append(FFound, aTail, item);
 end;
 
 procedure TStreamReplacer.SearchSought;
 var
   i: Integer;
+  tail: PStreamReplacerSearchResultLinkedList;
 begin
-  SetLength(FFound, Length(FSought));
+  FFound := nil;
   for i := 0 to Length(FSought) - 1 do
-    FFound[i] := SearchThis(i);
-end;
-
-function TStreamReplacer.NextFound(const aCurrent: Int64; out aSoughtIndex: Integer): Int64;
-var
-  i: Integer;
-  x: Int64;
-  tail: PInt64LinkedList;
-begin
-  result := -1;
-  for i := 0 to Length(FFound) - 1 do
-  begin
-    tail := FFound[i];
-    while 
-      Next(tail, x) 
-    do
-    begin
-      if
-        aCurrent < x
-      then
-        if
-          (result = -1)
-          or
-          (x < result)
-        then
-        begin
-          result := x;
-          aSoughtIndex := i;
-        end;
-    end;
-  end;
+    SearchThis(tail, i);
+  FFound := SortSearchResults(FFound);
 end;
 
 procedure TStreamReplacer.ReleaseDynamicStructures;
@@ -234,19 +223,12 @@ begin
   for i := 0 to Length(FTables) - 1 do
     SetLength(FTables[i], 0);
   SetLength(FTables, 0);
-  WriteDebugLine('Now disposing lists...');
-  for i := 0 to Length(FFound) - 1 do
-  begin
-    WriteDebugLine('Now disposing list #' + IntToStr(i));
-    DisposeList(FFound[i]);
-  end;
-  WriteDebugLine('Lists disposed...');
-  SetLength(FFound, 0);
+  DisposeList(FFound);
 end;
 
 procedure TStreamReplacer.WriteDebugLine(const aString: string);
 begin
-  //WriteLn(aString);
+  WriteLn(aString);
 end;
 
 // TStreamReplacer public methods 
