@@ -44,6 +44,7 @@ type
 implementation
 
 {$Include g-\StreamReplacerSearchResultLinkedListImpl.inc}
+{$Include g-\SortStreamReplacerSearchResultLinkedListImplementation.inc}
 
 function CreateKMPTable(w: string): TIntegerDynArray;
 var
