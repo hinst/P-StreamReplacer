@@ -14,7 +14,7 @@ type
     SoughtIndex, StreamPosition: Integer;
   end;
 
-{$Include g\StreamReplacerSearchResultLinkedListFace.inc}
+{$Include g-\StreamReplacerSearchResultLinkedListFace.inc}
 
 type
   { TStreamReplacer }
@@ -43,7 +43,7 @@ type
 
 implementation
 
-{$Include g\StreamReplacerSearchResultLinkedListImpl.inc}
+{$Include g-\StreamReplacerSearchResultLinkedListImpl.inc}
 
 function CreateKMPTable(w: string): TIntegerDynArray;
 var
