@@ -1,0 +1,1 @@
+{$Include GenerateStreamReplacerSearchResultLinkedListDelphiProject/GenerateStreamReplacerSearchResultLinkedListExecutable.dpr}
