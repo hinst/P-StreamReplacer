@@ -2,30 +2,30 @@ function SortSearchResultsCompare(const aFirst, aSecond: PStreamReplacerSearchRe
 var
   first, second: Int64;
 begin
-  first := aFirst^.Value.StreamPosition;
-  second := aSecond^.Value.StreamPosition;
-  if 
+  first := aFirst.Value.StreamPosition;
+  second := aFirst.Value.StreamPosition;
+  if
     first < second
   then
     result := -1
   else
-    if 
-	  first = second 
-	then
-	  result := 0
-	else
-	  result := 1;
+    if first = second then
+      result := 0
+    else
+      result := 1;
 end;
+
 
 function SortSearchResults(list: PStreamReplacerSearchResultLinkedList): PStreamReplacerSearchResultLinkedList;
 var
-	p, q, e, tail: PStreamReplacerSearchResultLinkedList;
+	p, q, e, tail, oldhead: PStreamReplacerSearchResultLinkedList;
 	insize, nmerges, psize, qsize, i: Integer;
 begin
-	result := nil;
 	if 
-		list <> nil
+		nil = list
 	then
+		result := nil
+	else
 	begin
 		insize := 1;
 		while
@@ -33,6 +33,7 @@ begin
 		do
 		begin
 			p := list;
+			oldhead := list;
 			list := nil;
 			tail := nil;
 			nmerges := 0;

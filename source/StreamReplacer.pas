@@ -14,7 +14,7 @@ type
     SoughtIndex, StreamPosition: Integer;
   end;
 
-{$Include g-\StreamReplacerSearchResultLinkedListFace.inc}
+{$Include g\StreamReplacerSearchResultLinkedListFace.inc}
 
 type
   { TStreamReplacer }
@@ -49,8 +49,8 @@ type
 
 implementation
 
-{$Include g-\StreamReplacerSearchResultLinkedListImpl.inc}
-{$Include g-\SortStreamReplacerSearchResultLinkedListImplementation.inc}
+{$Include g\StreamReplacerSearchResultLinkedListImpl.inc}
+{$Include g\SortStreamReplacerSearchResultLinkedListImplementation.inc}
 
 function CreateKMPTable(w: string): TIntegerDynArray;
 var
@@ -146,8 +146,12 @@ begin
     Next(tail, item)
   do
   begin
-    WriteDebugLine('Position: ' + IntToStr(item.StreamPosition) + '; index: ' + IntToStr(item.SoughtIndex)
-      + '; FInput position: ' + IntToStr(FInput.Position));
+    WriteDebugLine(
+      'Position: ' + IntToStr(item.StreamPosition)
+      + '; index: ' + IntToStr(item.SoughtIndex)
+      + '; FInput position: ' + IntToStr(FInput.Position)
+      + '; FOutput position: ' + IntToStr(aOutput.Position)
+    );
     if
       item.StreamPosition <> 0
     then
@@ -208,7 +212,14 @@ var
   i: Integer;
   tail: PStreamReplacerSearchResultLinkedList;
 begin
-  FFound := nil;
+  if
+    FFound <> nil
+  then
+  begin
+    DisposeList(FFound);
+    FFound := nil;
+  end;
+  tail := nil;
   for i := 0 to Length(FSought) - 1 do
     SearchThis(tail, i);
   FFound := SortSearchResults(FFound);
