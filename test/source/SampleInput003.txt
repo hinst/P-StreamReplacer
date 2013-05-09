@@ -1,0 +1,8 @@
+This is the sample input...
+  This is the sample input..
+    This is the sample input.
+_s _replaceThis _s _replaceThis
+This is _replaceThis
+FFFUUU
+This is _s
+   End of file.;;

@@ -6,12 +6,18 @@ uses
   Types,
   SysUtils,
   Classes,
-  
+
+  StringRoutines,
   Int64LinkedList;
 
 type
-  TStreamReplacerSearchResult = record
+
+  { TStreamReplacerSearchResult }
+
+  TStreamReplacerSearchResult = object
+  public
     SoughtIndex, StreamPosition: Integer;
+    function ToDebugString: string;
   end;
 
 {$Include g\StreamReplacerSearchResultLinkedListFace.inc}
@@ -36,7 +42,8 @@ type
     procedure AppendSearchResult(
       var aTail: PStreamReplacerSearchResultLinkedList;
       const aSoughtIndex: Integer;
-      const aStreamPosition: Int64); inline;
+      const aStreamPosition: Int64
+    ); inline;
     procedure SearchSought;
     procedure ReleaseDynamicStructures;
     procedure WriteDebugLine(const aString: string);
@@ -133,6 +140,22 @@ begin
   result := -1;
 end;
 
+{ TStreamReplacerSearchResult }
+
+function TStreamReplacerSearchResult.ToDebugString: string;
+begin
+  result :=
+    Concat(
+      [
+        'SoughtIndex: ',
+        IntToStr(SoughtIndex),
+        '; StreamPosition: ',
+        IntToStr(StreamPosition)
+      ]
+    )
+  ;
+end;
+
  { TStreamReplacer }
 
 procedure TStreamReplacer.WriteI(const aOutput: TStream; const aReplacer: TReplacer);
@@ -211,6 +234,7 @@ procedure TStreamReplacer.SearchSought;
 var
   i: Integer;
   tail: PStreamReplacerSearchResultLinkedList;
+  item: TStreamReplacerSearchResult;
 begin
   if
     FFound <> nil
@@ -222,7 +246,19 @@ begin
   tail := nil;
   for i := 0 to Length(FSought) - 1 do
     SearchThis(tail, i);
+  WriteDebugLine('Unsorted:');
+  tail := FFound;
+  while
+    Next(tail, item)
+  do
+    WriteDebugLine(item.ToDebugString);
   FFound := SortSearchResults(FFound);
+  WriteDebugLine('Sorted:');
+  tail := FFound;
+  while
+    Next(tail, item)
+  do
+    WriteDebugLine(item.ToDebugString);
 end;
 
 procedure TStreamReplacer.ReleaseDynamicStructures;
@@ -242,7 +278,7 @@ begin
   WriteLn(aString);
 end;
 
-// TStreamReplacer public methods 
+// TStreamReplacer public methods
 
 constructor TStreamReplacer.Create(const aInput: TStream; const aSearch: TStringDynArray);
 begin

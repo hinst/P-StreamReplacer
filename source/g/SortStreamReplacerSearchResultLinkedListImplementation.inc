@@ -3,7 +3,7 @@ var
   first, second: Int64;
 begin
   first := aFirst.Value.StreamPosition;
-  second := aFirst.Value.StreamPosition;
+  second := aSecond.Value.StreamPosition;
   if
     first < second
   then
