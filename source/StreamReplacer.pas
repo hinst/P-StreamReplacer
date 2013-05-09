@@ -20,7 +20,7 @@ type
     function ToDebugString: string;
   end;
 
-{$Include g\StreamReplacerSearchResultLinkedListFace.inc}
+{$Include g-\StreamReplacerSearchResultLinkedListFace.inc}
 
 type
   { TStreamReplacer }
@@ -56,8 +56,8 @@ type
 
 implementation
 
-{$Include g\StreamReplacerSearchResultLinkedListImpl.inc}
-{$Include g\SortStreamReplacerSearchResultLinkedListImplementation.inc}
+{$Include g-\StreamReplacerSearchResultLinkedListImpl.inc}
+{$Include g-\SortStreamReplacerSearchResultLinkedListImplementation.inc}
 
 function CreateKMPTable(w: string): TIntegerDynArray;
 var
@@ -169,17 +169,10 @@ begin
     Next(tail, item)
   do
   begin
-    WriteDebugLine(
-      'Position: ' + IntToStr(item.StreamPosition)
-      + '; index: ' + IntToStr(item.SoughtIndex)
-      + '; FInput position: ' + IntToStr(FInput.Position)
-      + '; FOutput position: ' + IntToStr(aOutput.Position)
-    );
     if
       item.StreamPosition <> 0
     then
       aOutput.CopyFrom(FInput, item.StreamPosition - FInput.Position);
-    WriteDebugLine('FInput position: ' + IntToStr(FInput.Position));
     aReplacer(item.SoughtIndex, aOutput);
     FInput.Seek(Length(FSought[item.SoughtIndex]), soFromCurrent);
   end;
@@ -206,14 +199,12 @@ var
 begin
   position := 0;
   currentSought := FSought[aIndex];
-  WriteDebugLine('Now searching: ' + currentSought);
   repeat
     position := KMPSearchStream(position, currentSought, FInput, FTables[aIndex]);
     if
       -1 = position
     then
       break;
-    WriteDebugLine('Found: ' + IntToStr(position));
     AppendSearchResult(aTail, aIndex, position);
     Inc(position);
   until False;
@@ -234,7 +225,6 @@ procedure TStreamReplacer.SearchSought;
 var
   i: Integer;
   tail: PStreamReplacerSearchResultLinkedList;
-  item: TStreamReplacerSearchResult;
 begin
   if
     FFound <> nil
@@ -246,26 +236,13 @@ begin
   tail := nil;
   for i := 0 to Length(FSought) - 1 do
     SearchThis(tail, i);
-  WriteDebugLine('Unsorted:');
-  tail := FFound;
-  while
-    Next(tail, item)
-  do
-    WriteDebugLine(item.ToDebugString);
   FFound := SortSearchResults(FFound);
-  WriteDebugLine('Sorted:');
-  tail := FFound;
-  while
-    Next(tail, item)
-  do
-    WriteDebugLine(item.ToDebugString);
 end;
 
 procedure TStreamReplacer.ReleaseDynamicStructures;
 var
   i: Integer;
 begin
-  WriteDebugLine('Now releasing dynamic structures...');
   SetLength(FSought, 0);
   for i := 0 to Length(FTables) - 1 do
     SetLength(FTables[i], 0);

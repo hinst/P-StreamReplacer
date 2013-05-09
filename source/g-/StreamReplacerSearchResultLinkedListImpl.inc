@@ -1,13 +1,13 @@
-function Create(const aValue: TStreamReplacerSearchResult): P_LT; inline;
+function Create(const aValue: TStreamReplacerSearchResult): PStreamReplacerSearchResultLinkedList; inline;
 begin
   New(result);
   result.Value := aValue;
   result.Next := nil;
 end;
 
-procedure Append(var aList, aTail: P_LT; const aValue: TStreamReplacerSearchResult);
+procedure Append(var aList, aTail: PStreamReplacerSearchResultLinkedList; const aValue: TStreamReplacerSearchResult);
 var
-  item: P_LT;
+  item: PStreamReplacerSearchResultLinkedList;
 begin
   item := Create(aValue);
 	if
@@ -19,7 +19,8 @@ begin
 	aTail := item;
 end;
 
-function Next(var aCurrent: P_LT; out aValue: TStreamReplacerSearchResultStreamReplacerSearchResultLinkedListStreamReplacerSearchResultLinkedListStreamReplacerSearchResultLinkedListStreamReplacerSearchResultLinkedListbegin
+function Next(var aCurrent: PStreamReplacerSearchResultLinkedList; out aValue: TStreamReplacerSearchResult): boolean;
+begin
 	result := aCurrent <> nil;
 	if
 		result

@@ -1,13 +1,13 @@
 type
-  P_LT = ^T_LT;
-  T_LT = record
+  PStreamReplacerSearchResultLinkedList = ^TStreamReplacerSearchResultLinkedList;
+  TStreamReplacerSearchResultLinkedList = record
     Value: TStreamReplacerSearchResult;
-    Next: P_LT;
+    Next: PStreamReplacerSearchResultLinkedList;
   end;
 
-procedure Append(var aList, aTail: P_LT; const aValue: TStreamReplacerSearchResult); overload; inline;
+procedure Append(var aList, aTail: PStreamReplacerSearchResultLinkedList; const aValue: TStreamReplacerSearchResult); overload; inline;
 
-function Next(var aCurrent: P_LT; out aValue: TStreamReplacerSearchResultStreamReplacerSearchResultLinkedListStreamReplacerSearchResultLinkedListStreamReplacerSearchResultLinkedListStreamReplacerSearchResultLinkedListStreamReplacerSearchResultLinkedListStreamReplacerSearchResultLinkedListad; inline;
+function Next(var aCurrent: PStreamReplacerSearchResultLinkedList; out aValue: TStreamReplacerSearchResult): boolean; overload; inline;
 
 function DisposeList(const aList: PStreamReplacerSearchResultLinkedList): PStreamReplacerSearchResultLinkedList; overload; inline;
 
